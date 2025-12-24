@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using webserver.Models;
 
 TcpListener myListener;
 int port = 5050;
@@ -24,8 +25,6 @@ void StartListen()
                 {
                         TcpClient client = myListener.AcceptTcpClient();
                         NetworkStream stream = client.GetStream();
-                        if (stream.CanRead)
-                                continue;
 
                         byte[] readBuffer = new byte[1024];
                         StringBuilder completeMesssage = new StringBuilder();
@@ -33,7 +32,12 @@ void StartListen()
 
                         completeMesssage.Append(Encoding.UTF8.GetString(readBuffer, 0, numberBytesRead));
 
+                        getRequest getRequest = new getRequest();
+                        getRequest.ParseRequest(completeMesssage.ToString());
+                        
 
+                        postResponse postResponse = new("HTTP/1.1",200,"OK");
+                        postResponse.sendMessage(stream);
 
                         Console.WriteLine($"Message received: {completeMesssage}");
                         client.Close();
@@ -56,5 +60,3 @@ void handleRequest()
 {
 
 }
-
-
